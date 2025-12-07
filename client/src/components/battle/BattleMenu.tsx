@@ -32,11 +32,11 @@ function MenuItem({ label, onClick, disabled = false, selected = false }: MenuIt
       onClick={onClick}
       disabled={disabled}
       className={`
-        w-full text-left px-3 py-2 text-white font-mono text-lg
+        w-full text-left px-2 py-1 md:px-3 md:py-2 text-white font-mono text-sm md:text-lg
         transition-all duration-100
         ${disabled ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer hover:bg-[#4444aa]/30'}
         ${selected ? 'bg-[#4444aa]/50' : ''}
-        flex items-center gap-2
+        flex items-center gap-1 md:gap-2
       `}
     >
       <span className={`${selected ? 'text-yellow-400' : 'text-transparent'}`}>▶</span>
@@ -84,8 +84,8 @@ export function CommandMenu() {
   };
   
   return (
-    <MenuBox className="absolute bottom-4 left-4 w-48">
-      <div className="text-yellow-400 font-bold mb-2 text-center border-b border-[#4444aa] pb-2">
+    <MenuBox className="absolute bottom-4 left-4 w-40 md:w-48 z-10">
+      <div className="text-yellow-400 font-bold mb-1 text-center border-b border-[#4444aa] pb-1 text-sm md:text-base">
         {currentHero.name}
       </div>
       <MenuItem label="Attack" onClick={handleAttack} />
@@ -126,8 +126,8 @@ export function SkillMenu() {
   };
   
   return (
-    <MenuBox className="absolute bottom-4 left-56 w-64">
-      <div className="text-yellow-400 font-bold mb-2 text-center border-b border-[#4444aa] pb-2">
+    <MenuBox className="absolute bottom-4 left-44 md:left-56 w-52 md:w-64 z-20">
+      <div className="text-yellow-400 font-bold mb-1 text-center border-b border-[#4444aa] pb-1 text-sm md:text-base">
         {currentHero.skillCategory.name}
       </div>
       {currentHero.skillCategory.skills.map(skill => (
@@ -138,7 +138,7 @@ export function SkillMenu() {
           disabled={currentHero.mp < skill.mpCost}
         />
       ))}
-      <div className="border-t border-[#4444aa] mt-2 pt-2">
+      <div className="border-t border-[#4444aa] mt-1 pt-1">
         <MenuItem label="Back" onClick={handleBack} />
       </div>
     </MenuBox>
@@ -169,12 +169,12 @@ export function ItemMenu() {
   };
   
   return (
-    <MenuBox className="absolute bottom-4 left-56 w-64">
-      <div className="text-yellow-400 font-bold mb-2 text-center border-b border-[#4444aa] pb-2">
+    <MenuBox className="absolute bottom-4 left-44 md:left-56 w-52 md:w-64 z-20">
+      <div className="text-yellow-400 font-bold mb-1 text-center border-b border-[#4444aa] pb-1 text-sm md:text-base">
         Items
       </div>
       {availableItems.length === 0 ? (
-        <div className="text-gray-400 text-center py-2">No items</div>
+        <div className="text-gray-400 text-center py-2 text-sm">No items</div>
       ) : (
         availableItems.map(item => (
           <MenuItem
@@ -184,7 +184,7 @@ export function ItemMenu() {
           />
         ))
       )}
-      <div className="border-t border-[#4444aa] mt-2 pt-2">
+      <div className="border-t border-[#4444aa] mt-1 pt-1">
         <MenuItem label="Back" onClick={handleBack} />
       </div>
     </MenuBox>
@@ -238,12 +238,12 @@ export function TargetIndicator() {
   };
   
   return (
-    <MenuBox className="absolute top-4 left-1/2 transform -translate-x-1/2">
-      <div className="text-white font-mono text-center">
-        {targetType}
+    <MenuBox className="absolute top-4 left-1/2 transform -translate-x-1/2 z-40 max-w-[90vw]">
+      <div className="text-white font-mono text-center text-xs md:text-base flex flex-col md:flex-row items-center gap-1 md:gap-4">
+        <span>{targetType}</span>
         <button 
           onClick={handleCancel}
-          className="ml-4 text-gray-400 hover:text-white"
+          className="text-gray-400 hover:text-white text-xs md:text-base"
         >
           [Cancel]
         </button>
@@ -256,18 +256,19 @@ export function PartyStatus() {
   const heroes = useBattle(state => state.heroes);
   const phase = useBattle(state => state.phase);
   
-  if (phase === 'start' || phase === 'victory' || phase === 'defeat' || phase === 'fled') {
+  const hiddenPhases = ['start', 'victory', 'defeat', 'fled', 'player_target'];
+  if (hiddenPhases.includes(phase)) {
     return null;
   }
   
   return (
-    <MenuBox className="absolute bottom-4 right-4 w-72">
-      <div className="text-yellow-400 font-bold mb-2 text-center border-b border-[#4444aa] pb-2">
+    <MenuBox className="absolute bottom-4 right-4 w-56 md:w-72 z-10">
+      <div className="text-yellow-400 font-bold mb-1 text-center border-b border-[#4444aa] pb-1 text-sm md:text-base">
         Party Status
       </div>
       {heroes.map(hero => (
-        <div key={hero.id} className={`py-1 ${!hero.isAlive ? 'opacity-50' : ''}`}>
-          <div className="flex justify-between text-white font-mono text-sm">
+        <div key={hero.id} className={`py-0.5 md:py-1 ${!hero.isAlive ? 'opacity-50' : ''}`}>
+          <div className="flex justify-between text-white font-mono text-xs md:text-sm">
             <span>{hero.name}</span>
             <span>
               HP: {hero.hp}/{hero.maxHp}
@@ -279,7 +280,7 @@ export function PartyStatus() {
               MP: {hero.mp}/{hero.maxMp}
             </span>
           </div>
-          <div className="w-full h-1 bg-gray-700 rounded mt-1">
+          <div className="w-full h-1 bg-gray-700 rounded mt-0.5">
             <div 
               className="h-full rounded transition-all duration-300"
               style={{ 
@@ -304,12 +305,12 @@ export function MessageLog() {
   }
   
   return (
-    <MenuBox className="absolute top-4 right-4 w-80 max-h-40 overflow-hidden">
-      <div className="space-y-1">
+    <MenuBox className="absolute top-4 right-4 w-64 md:w-80 max-h-32 md:max-h-40 overflow-hidden z-30">
+      <div className="space-y-0.5 md:space-y-1">
         {messages.map((msg, idx) => (
           <div 
             key={msg.id}
-            className="text-white font-mono text-sm"
+            className="text-white font-mono text-xs md:text-sm"
             style={{ opacity: 0.5 + (idx / messages.length) * 0.5 }}
           >
             {msg.text}
