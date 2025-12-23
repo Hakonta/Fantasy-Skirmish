@@ -323,8 +323,8 @@ export function BottomUI() {
   if (!showUI) return null;
   
   return (
-    <div className="absolute bottom-0 left-0 right-0 z-50 pointer-events-none">
-      <div className="h-[100vh] flex flex-col pointer-events-auto bg-gradient-to-t from-black/80 to-transparent pt-96 p-2 gap-2">
+    <div className="fixed bottom-0 left-0 right-0 z-50 pointer-events-none">
+      <div className="flex flex-col pointer-events-auto bg-gradient-to-t from-black via-black/90 to-transparent p-2 gap-2 max-h-[45vh] md:max-h-[35vh]">
         
         {/* Message Log at top of UI area */}
         <MessageLog />
@@ -333,10 +333,10 @@ export function BottomUI() {
         <TargetIndicator />
         
         {/* Main Menu Row - Responsive */}
-        <div className="flex gap-2 flex-col sm:flex-row">
+        <div className="flex gap-2 flex-col sm:flex-row w-full">
           {/* Left side: Commands/Menus */}
           <div className="flex-1 flex gap-2 flex-col sm:flex-row min-w-0">
-            <div className="flex-1 sm:w-40">
+            <div className="w-full sm:w-40">
               <CommandMenu />
             </div>
             <div className="flex-1 sm:w-44 min-w-0">
