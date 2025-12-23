@@ -3,17 +3,12 @@ import { Suspense, useEffect } from "react";
 import "@fontsource/inter";
 import {
   BattleScene,
-  CommandMenu,
-  SkillMenu,
-  ItemMenu,
-  TargetIndicator,
-  PartyStatus,
-  MessageLog,
   VictoryScreen,
   DefeatScreen,
   FleeScreen,
   StartScreen
 } from "./components/battle";
+import { BottomUI } from "./components/battle/BattleMenu";
 import { useBattle } from "./lib/stores/useBattle";
 
 function App() {
@@ -44,12 +39,7 @@ function App() {
         </Suspense>
       </Canvas>
 
-      <CommandMenu />
-      <SkillMenu />
-      <ItemMenu />
-      <TargetIndicator />
-      <PartyStatus />
-      <MessageLog />
+      <BottomUI />
       
       <StartScreen />
       <VictoryScreen />

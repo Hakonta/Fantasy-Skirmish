@@ -1,5 +1,4 @@
 import { useBattle } from '@/lib/stores/useBattle';
-import { Hero } from '@/lib/types/battle';
 
 interface MenuBoxProps {
   children: React.ReactNode;
@@ -9,7 +8,7 @@ interface MenuBoxProps {
 function MenuBox({ children, className = '' }: MenuBoxProps) {
   return (
     <div 
-      className={`bg-[#000033] border-4 border-[#4444aa] rounded-lg p-3 shadow-lg ${className}`}
+      className={`bg-[#000033] border-4 border-[#4444aa] rounded-lg shadow-lg ${className}`}
       style={{
         boxShadow: 'inset 0 0 10px rgba(68, 68, 170, 0.5), 0 0 20px rgba(0, 0, 51, 0.8)'
       }}
@@ -32,15 +31,15 @@ function MenuItem({ label, onClick, disabled = false, selected = false }: MenuIt
       onClick={onClick}
       disabled={disabled}
       className={`
-        w-full text-left px-2 py-1 md:px-3 md:py-2 text-white font-mono text-sm md:text-lg
+        w-full text-left px-2 py-1.5 text-white font-mono text-xs
         transition-all duration-100
         ${disabled ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer hover:bg-[#4444aa]/30'}
         ${selected ? 'bg-[#4444aa]/50' : ''}
-        flex items-center gap-1 md:gap-2
+        flex items-center gap-1
       `}
     >
-      <span className={`${selected ? 'text-yellow-400' : 'text-transparent'}`}>▶</span>
-      {label}
+      <span className={`${selected ? 'text-yellow-400' : 'text-transparent'} text-sm`}>▶</span>
+      <span className="text-xs">{label}</span>
     </button>
   );
 }
@@ -84,8 +83,8 @@ export function CommandMenu() {
   };
   
   return (
-    <MenuBox className="absolute bottom-4 left-4 w-40 md:w-48 z-10">
-      <div className="text-yellow-400 font-bold mb-1 text-center border-b border-[#4444aa] pb-1 text-sm md:text-base">
+    <MenuBox className="p-2">
+      <div className="text-yellow-400 font-bold text-center border-b border-[#4444aa] pb-1 text-xs mb-1">
         {currentHero.name}
       </div>
       <MenuItem label="Attack" onClick={handleAttack} />
@@ -126,8 +125,8 @@ export function SkillMenu() {
   };
   
   return (
-    <MenuBox className="absolute bottom-4 left-44 md:left-56 w-52 md:w-64 z-20">
-      <div className="text-yellow-400 font-bold mb-1 text-center border-b border-[#4444aa] pb-1 text-sm md:text-base">
+    <MenuBox className="p-2 max-h-64 overflow-y-auto">
+      <div className="text-yellow-400 font-bold text-center border-b border-[#4444aa] pb-1 text-xs mb-1">
         {currentHero.skillCategory.name}
       </div>
       {currentHero.skillCategory.skills.map(skill => (
@@ -169,12 +168,12 @@ export function ItemMenu() {
   };
   
   return (
-    <MenuBox className="absolute bottom-4 left-44 md:left-56 w-52 md:w-64 z-20">
-      <div className="text-yellow-400 font-bold mb-1 text-center border-b border-[#4444aa] pb-1 text-sm md:text-base">
+    <MenuBox className="p-2 max-h-64 overflow-y-auto">
+      <div className="text-yellow-400 font-bold text-center border-b border-[#4444aa] pb-1 text-xs mb-1">
         Items
       </div>
       {availableItems.length === 0 ? (
-        <div className="text-gray-400 text-center py-2 text-sm">No items</div>
+        <div className="text-gray-400 text-center py-2 text-xs">No items</div>
       ) : (
         availableItems.map(item => (
           <MenuItem
@@ -187,6 +186,44 @@ export function ItemMenu() {
       <div className="border-t border-[#4444aa] mt-1 pt-1">
         <MenuItem label="Back" onClick={handleBack} />
       </div>
+    </MenuBox>
+  );
+}
+
+export function PartyStatus() {
+  const heroes = useBattle(state => state.heroes);
+  const phase = useBattle(state => state.phase);
+  
+  const hiddenPhases = ['start', 'victory', 'defeat', 'fled'];
+  if (hiddenPhases.includes(phase)) {
+    return null;
+  }
+  
+  return (
+    <MenuBox className="p-2">
+      <div className="text-yellow-400 font-bold text-center border-b border-[#4444aa] pb-1 text-xs mb-1">
+        Party Status
+      </div>
+      {heroes.map(hero => (
+        <div key={hero.id} className={`py-0.5 px-1 ${!hero.isAlive ? 'opacity-50' : ''}`}>
+          <div className="flex justify-between text-white font-mono text-xs gap-2">
+            <span className="flex-1 truncate">{hero.name}</span>
+            <span className="text-xs whitespace-nowrap">
+              {hero.hp}/{hero.maxHp}
+            </span>
+          </div>
+          <div className="w-full h-1 bg-gray-700 rounded mt-0.5">
+            <div 
+              className="h-full rounded transition-all duration-300"
+              style={{ 
+                width: `${(hero.hp / hero.maxHp) * 100}%`,
+                backgroundColor: hero.hp / hero.maxHp > 0.5 ? '#22c55e' : 
+                                hero.hp / hero.maxHp > 0.25 ? '#eab308' : '#ef4444'
+              }}
+            />
+          </div>
+        </div>
+      ))}
     </MenuBox>
   );
 }
@@ -209,18 +246,18 @@ export function TargetIndicator() {
   
   let targetType = '';
   if (selectedCommand === 'attack') {
-    targetType = 'Select an enemy to attack';
+    targetType = 'Select enemy';
   } else if (selectedSkill) {
     if (selectedSkill.target === 'single_enemy' || selectedSkill.target === 'all_enemies') {
-      targetType = 'Select an enemy';
+      targetType = 'Select enemy';
     } else {
-      targetType = 'Select an ally';
+      targetType = 'Select ally';
     }
   } else if (selectedItem) {
     if (selectedItem.effect === 'revive') {
-      targetType = 'Select a fallen ally to revive';
+      targetType = 'Select fallen ally';
     } else {
-      targetType = 'Select an ally';
+      targetType = 'Select ally';
     }
   }
   
@@ -238,60 +275,16 @@ export function TargetIndicator() {
   };
   
   return (
-    <MenuBox className="absolute top-4 left-1/2 transform -translate-x-1/2 z-40 max-w-[90vw]">
-      <div className="text-white font-mono text-center text-xs md:text-base flex flex-col md:flex-row items-center gap-1 md:gap-4">
+    <MenuBox className="p-2">
+      <div className="text-white font-mono text-center text-xs flex items-center justify-center gap-2">
         <span>{targetType}</span>
         <button 
           onClick={handleCancel}
-          className="text-gray-400 hover:text-white text-xs md:text-base"
+          className="text-gray-400 hover:text-white text-xs whitespace-nowrap"
         >
-          [Cancel]
+          [X]
         </button>
       </div>
-    </MenuBox>
-  );
-}
-
-export function PartyStatus() {
-  const heroes = useBattle(state => state.heroes);
-  const phase = useBattle(state => state.phase);
-  
-  const hiddenPhases = ['start', 'victory', 'defeat', 'fled', 'player_target'];
-  if (hiddenPhases.includes(phase)) {
-    return null;
-  }
-  
-  return (
-    <MenuBox className="absolute bottom-4 right-4 w-56 md:w-72 z-10">
-      <div className="text-yellow-400 font-bold mb-1 text-center border-b border-[#4444aa] pb-1 text-sm md:text-base">
-        Party Status
-      </div>
-      {heroes.map(hero => (
-        <div key={hero.id} className={`py-0.5 md:py-1 ${!hero.isAlive ? 'opacity-50' : ''}`}>
-          <div className="flex justify-between text-white font-mono text-xs md:text-sm">
-            <span>{hero.name}</span>
-            <span>
-              HP: {hero.hp}/{hero.maxHp}
-            </span>
-          </div>
-          <div className="flex justify-between text-blue-300 font-mono text-xs">
-            <span></span>
-            <span>
-              MP: {hero.mp}/{hero.maxMp}
-            </span>
-          </div>
-          <div className="w-full h-1 bg-gray-700 rounded mt-0.5">
-            <div 
-              className="h-full rounded transition-all duration-300"
-              style={{ 
-                width: `${(hero.hp / hero.maxHp) * 100}%`,
-                backgroundColor: hero.hp / hero.maxHp > 0.5 ? '#22c55e' : 
-                                hero.hp / hero.maxHp > 0.25 ? '#eab308' : '#ef4444'
-              }}
-            />
-          </div>
-        </div>
-      ))}
     </MenuBox>
   );
 }
@@ -305,18 +298,59 @@ export function MessageLog() {
   }
   
   return (
-    <MenuBox className="absolute top-4 right-4 w-64 md:w-80 max-h-32 md:max-h-40 overflow-hidden z-30">
-      <div className="space-y-0.5 md:space-y-1">
-        {messages.map((msg, idx) => (
+    <MenuBox className="p-2 max-h-20 overflow-y-auto flex-shrink-0">
+      <div className="space-y-0.5">
+        {messages.slice(-3).map((msg) => (
           <div 
             key={msg.id}
-            className="text-white font-mono text-xs md:text-sm"
-            style={{ opacity: 0.5 + (idx / messages.length) * 0.5 }}
+            className="text-white font-mono text-xs"
+            style={{ opacity: 0.7 }}
           >
             {msg.text}
           </div>
         ))}
       </div>
     </MenuBox>
+  );
+}
+
+// New unified bottom UI container
+export function BottomUI() {
+  const phase = useBattle(state => state.phase);
+  
+  const showUI = !['start', 'victory', 'defeat', 'fled'].includes(phase);
+  
+  if (!showUI) return null;
+  
+  return (
+    <div className="absolute bottom-0 left-0 right-0 z-50 pointer-events-none">
+      <div className="h-[100vh] flex flex-col pointer-events-auto bg-gradient-to-t from-black/80 to-transparent pt-96 p-2 gap-2">
+        
+        {/* Message Log at top of UI area */}
+        <MessageLog />
+        
+        {/* Target Indicator */}
+        <TargetIndicator />
+        
+        {/* Main Menu Row - Responsive */}
+        <div className="flex gap-2 flex-col sm:flex-row">
+          {/* Left side: Commands/Menus */}
+          <div className="flex-1 flex gap-2 flex-col sm:flex-row min-w-0">
+            <div className="flex-1 sm:w-40">
+              <CommandMenu />
+            </div>
+            <div className="flex-1 sm:w-44 min-w-0">
+              <SkillMenu />
+              <ItemMenu />
+            </div>
+          </div>
+          
+          {/* Right side: Party Status */}
+          <div className="w-full sm:w-48 flex-shrink-0">
+            <PartyStatus />
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }

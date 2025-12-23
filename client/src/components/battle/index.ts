@@ -1,13 +1,6 @@
 export { BattleScene } from './BattleScene';
 export { CharacterSprite } from './CharacterSprite';
-export { 
-  CommandMenu, 
-  SkillMenu, 
-  ItemMenu, 
-  TargetIndicator, 
-  PartyStatus, 
-  MessageLog 
-} from './BattleMenu';
+export { BottomUI } from './BattleMenu';
 export { 
   VictoryScreen, 
   DefeatScreen, 
