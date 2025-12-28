@@ -85,25 +85,10 @@ export function BattleScene() {
         <meshStandardMaterial color="#2d4a3e" />
       </mesh>
       
-      <mesh position={[0, 4, -8]}>
-        <planeGeometry args={[30, 12]} />
-        <meshBasicMaterial color="#1a1a2e" />
-      </mesh>
-      
-      <Text
-        position={[0, 6, -7.9]}
-        fontSize={0.8}
-        color="#334466"
-        anchorX="center"
-        anchorY="middle"
-      >
-        ~ Battle Arena ~
-      </Text>
-      
       {heroes.map((hero, index) => {
-        const xPos = -5;
+        const xPos = -2.5;
         const yPos = 0;
-        const zPos = -2 + index * 2;
+        const zPos = -3 + index * 3;
         const isCurrentTurn = currentActor?.id === hero.id && currentActor?.type === 'hero';
         
         return (
@@ -123,9 +108,9 @@ export function BattleScene() {
       })}
       
       {enemies.map((enemy, index) => {
-        const xPos = 5;
+        const xPos = 2.5;
         const yPos = 0;
-        const zPos = -2 + index * 2;
+        const zPos = -3 + index * 3;
         const isCurrentTurn = currentActor?.id === enemy.id && currentActor?.type === 'enemy';
         
         return (

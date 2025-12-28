@@ -323,31 +323,31 @@ export function BottomUI() {
   if (!showUI) return null;
   
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 pointer-events-none">
-      <div className="flex flex-col pointer-events-auto bg-gradient-to-t from-black via-black/90 to-transparent p-2 gap-2 max-h-[45vh] md:max-h-[35vh]">
+    <div className="relative z-50 flex-shrink-0 bg-black/60 border-t-2 border-[#4444aa]/30">
+      <div className="flex flex-col p-2 gap-2 h-auto max-h-[40vh]">
         
-        {/* Message Log at top of UI area */}
+        {/* Message Log */}
         <MessageLog />
         
         {/* Target Indicator */}
         <TargetIndicator />
         
-        {/* Main Menu Row - Responsive */}
-        <div className="flex gap-2 flex-col sm:flex-row w-full">
-          {/* Left side: Commands/Menus */}
-          <div className="flex-1 flex gap-2 flex-col sm:flex-row min-w-0">
-            <div className="w-full sm:w-40">
+        {/* Main Menu Row */}
+        <div className="flex flex-col gap-2 w-full">
+          {/* Party Status - Priority for Portrait */}
+          <div className="w-full">
+            <PartyStatus />
+          </div>
+
+          {/* Commands/Menus */}
+          <div className="flex gap-2 min-w-0 h-32">
+            <div className="w-1/3 min-w-0">
               <CommandMenu />
             </div>
-            <div className="flex-1 sm:w-44 min-w-0">
+            <div className="flex-1 min-w-0">
               <SkillMenu />
               <ItemMenu />
             </div>
-          </div>
-          
-          {/* Right side: Party Status */}
-          <div className="w-full sm:w-48 flex-shrink-0">
-            <PartyStatus />
           </div>
         </div>
       </div>

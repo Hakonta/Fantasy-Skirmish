@@ -19,34 +19,43 @@ function App() {
   }, [phase]);
 
   return (
-    <div style={{ width: '100vw', height: '100vh', position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-      <div style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
-        <Canvas
-          shadows
-          camera={{
-            position: [0, 5, 12],
-            fov: 50,
-            near: 0.1,
-            far: 100
-          }}
-          gl={{
-            antialias: true,
-            powerPreference: "default"
-          }}
-        >
-          <color attach="background" args={["#0a0a1a"]} />
-          <Suspense fallback={null}>
-            <BattleScene />
-          </Suspense>
-        </Canvas>
-      </div>
+    <div className="w-screen h-screen bg-black flex items-center justify-center overflow-hidden">
+      {/* 9:16 Aspect Ratio Container */}
+      <div 
+        className="relative bg-[#0a0a1a] shadow-2xl overflow-hidden flex flex-col"
+        style={{
+          width: 'min(100vw, calc(100vh * 9 / 16))',
+          height: 'min(100vh, calc(100vw * 16 / 9))',
+        }}
+      >
+        <div className="flex-1 relative overflow-hidden">
+          <Canvas
+            shadows
+            camera={{
+              position: [0, 4, 15],
+              fov: 45,
+              near: 0.1,
+              far: 100
+            }}
+            gl={{
+              antialias: true,
+              powerPreference: "default"
+            }}
+          >
+            <color attach="background" args={["#0a0a1a"]} />
+            <Suspense fallback={null}>
+              <BattleScene />
+            </Suspense>
+          </Canvas>
+        </div>
 
-      <BottomUI />
-      
-      <StartScreen />
-      <VictoryScreen />
-      <DefeatScreen />
-      <FleeScreen />
+        <BottomUI />
+        
+        <StartScreen />
+        <VictoryScreen />
+        <DefeatScreen />
+        <FleeScreen />
+      </div>
     </div>
   );
 }
