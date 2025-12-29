@@ -379,8 +379,6 @@ export function BottomUI() {
   const [isActionCollapsed, setIsActionCollapsed] = useState(false);
   
   const showUI = !['start', 'victory', 'defeat', 'fled'].includes(phase);
-  
-  if (!showUI) return null;
 
   const isTargeting = useMemo(() => {
     return (
@@ -391,9 +389,17 @@ export function BottomUI() {
   }, [phase, selectedSkill, selectedItem]);
 
   useEffect(() => {
+    // Keep hook order stable: this effect runs even when UI is hidden.
+    if (!showUI) {
+      setIsActionCollapsed(false);
+      return;
+    }
+
     // If we're not targeting, keep the action menus visible by default.
     if (!isTargeting) setIsActionCollapsed(false);
-  }, [isTargeting]);
+  }, [isTargeting, showUI]);
+
+  if (!showUI) return null;
   
   return (
     <div
