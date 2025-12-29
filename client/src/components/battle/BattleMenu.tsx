@@ -9,7 +9,7 @@ interface MenuBoxProps {
 function MenuBox({ children, className = '' }: MenuBoxProps) {
   return (
     <div 
-      className={`bg-[#000033] border-4 border-[#4444aa] rounded-lg p-3 shadow-lg ${className}`}
+      className={`bg-[#000033] border-4 border-[#4444aa] rounded-lg p-3 shadow-lg pointer-events-auto ${className}`}
       style={{
         boxShadow: 'inset 0 0 10px rgba(68, 68, 170, 0.5), 0 0 20px rgba(0, 0, 51, 0.8)'
       }}
@@ -45,14 +45,14 @@ function MenuItem({ label, onClick, disabled = false, selected = false }: MenuIt
   );
 }
 
-export function CommandMenu() {
+export function CommandMenu({ className = '' }: { className?: string }) {
   const phase = useBattle(state => state.phase);
   const turnOrder = useBattle(state => state.turnOrder);
   const currentTurnIndex = useBattle(state => state.currentTurnIndex);
   const heroes = useBattle(state => state.heroes);
   const setPhase = useBattle(state => state.setPhase);
   const setSelectedCommand = useBattle(state => state.setSelectedCommand);
-  const attemptFlee = useBattle(state => state.attemptFlee);
+  const chooseFlee = useBattle(state => state.chooseFlee);
   
   const currentActor = turnOrder[currentTurnIndex];
   const currentHero = currentActor?.type === 'hero' 
@@ -80,11 +80,11 @@ export function CommandMenu() {
   
   const handleFlee = () => {
     setSelectedCommand('flee');
-    attemptFlee();
+    chooseFlee(currentHero.id);
   };
   
   return (
-    <MenuBox className="absolute bottom-4 left-4 w-48">
+    <MenuBox className={`w-full ${className}`}>
       <div className="text-yellow-400 font-bold mb-2 text-center border-b border-[#4444aa] pb-2">
         {currentHero.name}
       </div>
@@ -96,7 +96,7 @@ export function CommandMenu() {
   );
 }
 
-export function SkillMenu() {
+export function SkillMenu({ className = '' }: { className?: string }) {
   const phase = useBattle(state => state.phase);
   const turnOrder = useBattle(state => state.turnOrder);
   const currentTurnIndex = useBattle(state => state.currentTurnIndex);
@@ -126,7 +126,7 @@ export function SkillMenu() {
   };
   
   return (
-    <MenuBox className="absolute bottom-4 left-56 w-64">
+    <MenuBox className={`w-full ${className}`}>
       <div className="text-yellow-400 font-bold mb-2 text-center border-b border-[#4444aa] pb-2">
         {currentHero.skillCategory.name}
       </div>
@@ -145,7 +145,7 @@ export function SkillMenu() {
   );
 }
 
-export function ItemMenu() {
+export function ItemMenu({ className = '' }: { className?: string }) {
   const phase = useBattle(state => state.phase);
   const items = useBattle(state => state.items);
   const setPhase = useBattle(state => state.setPhase);
@@ -169,7 +169,7 @@ export function ItemMenu() {
   };
   
   return (
-    <MenuBox className="absolute bottom-4 left-56 w-64">
+    <MenuBox className={`w-full ${className}`}>
       <div className="text-yellow-400 font-bold mb-2 text-center border-b border-[#4444aa] pb-2">
         Items
       </div>
@@ -191,7 +191,7 @@ export function ItemMenu() {
   );
 }
 
-export function TargetIndicator() {
+export function TargetIndicator({ className = '' }: { className?: string }) {
   const phase = useBattle(state => state.phase);
   const selectedCommand = useBattle(state => state.selectedCommand);
   const selectedSkill = useBattle(state => state.selectedSkill);
@@ -238,7 +238,7 @@ export function TargetIndicator() {
   };
   
   return (
-    <MenuBox className="absolute top-4 left-1/2 transform -translate-x-1/2">
+    <MenuBox className={className}>
       <div className="text-white font-mono text-center">
         {targetType}
         <button 
@@ -252,7 +252,7 @@ export function TargetIndicator() {
   );
 }
 
-export function PartyStatus() {
+export function PartyStatus({ className = '' }: { className?: string }) {
   const heroes = useBattle(state => state.heroes);
   const phase = useBattle(state => state.phase);
   
@@ -261,10 +261,7 @@ export function PartyStatus() {
   }
   
   return (
-    <MenuBox className="absolute bottom-4 right-4 w-72">
-      <div className="text-yellow-400 font-bold mb-2 text-center border-b border-[#4444aa] pb-2">
-        Party Status
-      </div>
+    <MenuBox className={`w-full ${className}`}>
       {heroes.map(hero => (
         <div key={hero.id} className={`py-1 ${!hero.isAlive ? 'opacity-50' : ''}`}>
           <div className="flex justify-between text-white font-mono text-sm">
@@ -295,7 +292,7 @@ export function PartyStatus() {
   );
 }
 
-export function MessageLog() {
+export function MessageLog({ className = '' }: { className?: string }) {
   const messages = useBattle(state => state.messages);
   const phase = useBattle(state => state.phase);
   
@@ -304,7 +301,7 @@ export function MessageLog() {
   }
   
   return (
-    <MenuBox className="absolute top-4 right-4 w-80 max-h-40 overflow-hidden">
+    <MenuBox className={`w-full max-h-40 overflow-hidden ${className}`}>
       <div className="space-y-1">
         {messages.map((msg, idx) => (
           <div 
