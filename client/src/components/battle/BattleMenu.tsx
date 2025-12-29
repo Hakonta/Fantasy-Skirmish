@@ -1,3 +1,4 @@
+import { useEffect, useMemo, useState } from 'react';
 import { useBattle } from '@/lib/stores/useBattle';
 
 interface MenuBoxProps {
@@ -202,7 +203,7 @@ export function PartyStatus() {
   return (
     <MenuBox className="p-2">
       <div className="text-yellow-400 font-bold text-center border-b border-[#4444aa] pb-1 text-xs mb-1">
-        Party Status
+        Heroes
       </div>
       {heroes.map(hero => (
         <div key={hero.id} className={`py-0.5 px-1 ${!hero.isAlive ? 'opacity-50' : ''}`}>
@@ -224,6 +225,34 @@ export function PartyStatus() {
           </div>
         </div>
       ))}
+    </MenuBox>
+  );
+}
+
+export function EnemyStatus() {
+  const enemies = useBattle(state => state.enemies);
+  const phase = useBattle(state => state.phase);
+
+  const hiddenPhases = ['start', 'victory', 'defeat', 'fled'];
+  if (hiddenPhases.includes(phase)) {
+    return null;
+  }
+
+  return (
+    <MenuBox className="p-2">
+      <div className="text-yellow-400 font-bold text-center border-b border-[#4444aa] pb-1 text-xs mb-1">
+        Enemies
+      </div>
+      <div className="space-y-0.5">
+        {enemies.map(enemy => (
+          <div
+            key={enemy.id}
+            className={`text-white font-mono text-xs px-1 py-0.5 ${enemy.isAlive ? '' : 'opacity-40 line-through'}`}
+          >
+            {enemy.name}
+          </div>
+        ))}
+      </div>
     </MenuBox>
   );
 }
@@ -314,13 +343,57 @@ export function MessageLog() {
   );
 }
 
-// New unified bottom UI container
+export function BattleSummaryOverlay() {
+  const phase = useBattle(state => state.phase);
+
+  const showUI = !['start', 'victory', 'defeat', 'fled'].includes(phase);
+  if (!showUI) return null;
+
+  return (
+    <div
+      className="absolute top-0 left-0 right-0 z-40 pointer-events-none"
+      style={{
+        paddingTop: 'calc(0.5rem + env(safe-area-inset-top, 0px))',
+        paddingLeft: 'env(safe-area-inset-left, 0px)',
+        paddingRight: 'env(safe-area-inset-right, 0px)',
+      }}
+    >
+      <div className="p-2 flex gap-2 items-start">
+        <div className="flex-1 min-w-0 pointer-events-auto">
+          <MessageLog />
+        </div>
+        <div className="pointer-events-auto">
+          <TargetIndicator />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Bottom UI container
 export function BottomUI() {
   const phase = useBattle(state => state.phase);
+  const selectedSkill = useBattle(state => state.selectedSkill);
+  const selectedItem = useBattle(state => state.selectedItem);
+
+  const [isActionCollapsed, setIsActionCollapsed] = useState(false);
   
   const showUI = !['start', 'victory', 'defeat', 'fled'].includes(phase);
   
   if (!showUI) return null;
+
+  const isTargeting = useMemo(() => {
+    return (
+      phase === 'player_target' ||
+      (phase === 'player_skill' && !!selectedSkill) ||
+      (phase === 'player_item' && !!selectedItem)
+    );
+  }, [phase, selectedSkill, selectedItem]);
+
+  useEffect(() => {
+    // If we're not targeting, keep the action menus visible by default.
+    if (!isTargeting) setIsActionCollapsed(false);
+  }, [isTargeting]);
   
   return (
     <div
@@ -331,30 +404,41 @@ export function BottomUI() {
         paddingRight: 'env(safe-area-inset-right, 0px)',
       }}
     >
-      <div className="flex flex-col p-2 gap-2 h-auto max-h-[40vh]">
-        
-        {/* Message Log */}
-        <MessageLog />
-        
-        {/* Target Indicator */}
-        <TargetIndicator />
-        
-        {/* Main Menu Row */}
-        <div className="flex flex-col gap-2 w-full">
-          {/* Party Status - Priority for Portrait */}
-          <div className="w-full">
+      <div className="flex flex-col p-2 gap-2 h-auto max-h-[42vh]">
+        {/* Action menus (above status panels) */}
+        <div className="w-full">
+          <div className="flex items-stretch gap-2 min-w-0">
+            <div className={`flex gap-2 min-w-0 flex-1 ${isActionCollapsed ? 'hidden' : ''}`}>
+              <div className="w-1/3 min-w-0">
+                <CommandMenu />
+              </div>
+              <div className="flex-1 min-w-0">
+                <SkillMenu />
+                <ItemMenu />
+              </div>
+            </div>
+
+            {/* Optional collapse control while targeting */}
+            {isTargeting && (
+              <MenuBox className="p-2 flex items-center">
+                <button
+                  onClick={() => setIsActionCollapsed(v => !v)}
+                  className="text-white font-mono text-xs whitespace-nowrap hover:text-yellow-300"
+                >
+                  {isActionCollapsed ? 'Show menu' : 'Hide menu'}
+                </button>
+              </MenuBox>
+            )}
+          </div>
+        </div>
+
+        {/* Status panels (heroes left, enemies right) */}
+        <div className="grid grid-cols-2 gap-2 min-w-0">
+          <div className="min-w-0">
             <PartyStatus />
           </div>
-
-          {/* Commands/Menus */}
-          <div className="flex gap-2 min-w-0 h-32">
-            <div className="w-1/3 min-w-0">
-              <CommandMenu />
-            </div>
-            <div className="flex-1 min-w-0">
-              <SkillMenu />
-              <ItemMenu />
-            </div>
+          <div className="min-w-0">
+            <EnemyStatus />
           </div>
         </div>
       </div>
