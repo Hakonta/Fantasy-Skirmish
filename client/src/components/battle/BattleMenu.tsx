@@ -323,7 +323,14 @@ export function BottomUI() {
   if (!showUI) return null;
   
   return (
-    <div className="relative z-50 flex-shrink-0 bg-black/60 border-t-2 border-[#4444aa]/30">
+    <div
+      className="relative z-50 flex-shrink-0 bg-black/60 border-t-2 border-[#4444aa]/30"
+      style={{
+        paddingBottom: 'calc(0.5rem + env(safe-area-inset-bottom, 0px))',
+        paddingLeft: 'env(safe-area-inset-left, 0px)',
+        paddingRight: 'env(safe-area-inset-right, 0px)',
+      }}
+    >
       <div className="flex flex-col p-2 gap-2 h-auto max-h-[40vh]">
         
         {/* Message Log */}
