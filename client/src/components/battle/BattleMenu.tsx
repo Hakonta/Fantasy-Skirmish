@@ -410,41 +410,44 @@ export function BottomUI() {
         paddingRight: 'env(safe-area-inset-right, 0px)',
       }}
     >
-      <div className="flex flex-col p-2 gap-2 h-auto max-h-[42vh]">
-        {/* Action menus (above status panels) */}
-        <div className="w-full">
-          <div className="flex items-stretch gap-2 min-w-0">
-            <div className={`flex gap-2 min-w-0 flex-1 ${isActionCollapsed ? 'hidden' : ''}`}>
-              <div className="w-1/3 min-w-0">
-                <CommandMenu />
-              </div>
-              <div className="flex-1 min-w-0">
-                <SkillMenu />
-                <ItemMenu />
-              </div>
-            </div>
-
-            {/* Optional collapse control while targeting */}
-            {isTargeting && (
-              <MenuBox className="p-2 flex items-center">
-                <button
-                  onClick={() => setIsActionCollapsed(v => !v)}
-                  className="text-white font-mono text-xs whitespace-nowrap hover:text-yellow-300"
-                >
-                  {isActionCollapsed ? 'Show menu' : 'Hide menu'}
-                </button>
-              </MenuBox>
-            )}
-          </div>
-        </div>
-
-        {/* Status panels (heroes left, enemies right) */}
-        <div className="grid grid-cols-2 gap-2 min-w-0">
+      {/* Fixed-height HUD region so overlays don't push panels off-screen */}
+      <div className="relative p-2 h-[42vh] max-h-[42vh] overflow-hidden">
+        {/* Status panels (base layer) */}
+        <div className="absolute left-2 right-2 bottom-2 z-10 grid grid-cols-2 gap-2 min-w-0">
           <div className="min-w-0">
             <PartyStatus />
           </div>
           <div className="min-w-0">
             <EnemyStatus />
+          </div>
+        </div>
+
+        {/* Action menus (overlay layer) */}
+        <div className="absolute left-2 right-2 top-2 z-20 pointer-events-auto">
+          <div className="max-h-[24vh] overflow-y-auto">
+            <div className="flex items-stretch gap-2 min-w-0">
+              <div className={`flex gap-2 min-w-0 flex-1 ${isActionCollapsed ? 'hidden' : ''}`}>
+                <div className="w-1/3 min-w-0">
+                  <CommandMenu />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <SkillMenu />
+                  <ItemMenu />
+                </div>
+              </div>
+
+              {/* Optional collapse control while targeting */}
+              {isTargeting && (
+                <MenuBox className="p-2 flex items-center">
+                  <button
+                    onClick={() => setIsActionCollapsed(v => !v)}
+                    className="text-white font-mono text-xs whitespace-nowrap hover:text-yellow-300"
+                  >
+                    {isActionCollapsed ? 'Show menu' : 'Hide menu'}
+                  </button>
+                </MenuBox>
+              )}
+            </div>
           </div>
         </div>
       </div>
