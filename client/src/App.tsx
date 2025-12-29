@@ -19,13 +19,13 @@ function App() {
   }, [phase]);
 
   return (
-    <div className="w-screen h-screen bg-black flex items-center justify-center overflow-hidden">
+    <div className="w-full h-full bg-black flex items-center justify-center overflow-hidden">
       {/* 9:16 Aspect Ratio Container */}
       <div 
         className="relative bg-[#0a0a1a] shadow-2xl overflow-hidden flex flex-col"
         style={{
-          width: 'min(100vw, calc(100vh * 9 / 16))',
-          height: 'min(100vh, calc(100vw * 16 / 9))',
+          width: 'min(100vw, calc(var(--app-vh) * 100 * 9 / 16))',
+          height: 'min(calc(var(--app-vh) * 100), calc(100vw * 16 / 9))',
         }}
       >
         <div className="flex-1 relative overflow-hidden">
