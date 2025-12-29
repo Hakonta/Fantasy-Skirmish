@@ -26,6 +26,7 @@ interface BattleState {
   selectedItem: Item | null;
   pendingActions: BattleAction[];
   fleeAttempts: number;
+  fleeReadyHeroIds: string[];
   messages: BattleMessage[];
   
   initBattle: () => void;
@@ -40,6 +41,7 @@ interface BattleState {
   executeAttack: (actorId: string, actorType: 'hero' | 'enemy', targetId: string) => void;
   executeSkill: (actorId: string, actorType: 'hero' | 'enemy', skill: Skill, targetIds: string[]) => void;
   useItem: (item: Item, targetId: string) => void;
+  chooseFlee: (heroId: string) => void;
   attemptFlee: () => boolean;
   
   enemyTakeTurn: () => void;
@@ -68,6 +70,7 @@ export const useBattle = create<BattleState>()(
     selectedItem: null,
     pendingActions: [],
     fleeAttempts: 0,
+    fleeReadyHeroIds: [],
     messages: [],
     
     initBattle: () => {
@@ -88,6 +91,7 @@ export const useBattle = create<BattleState>()(
         selectedItem: null,
         pendingActions: [],
         fleeAttempts: 0,
+        fleeReadyHeroIds: [],
         messages: []
       });
       
@@ -122,7 +126,8 @@ export const useBattle = create<BattleState>()(
       set({
         turnOrder: allTurns,
         currentTurnIndex: 0,
-        phase: 'turn_order'
+        phase: 'turn_order',
+        fleeReadyHeroIds: []
       });
       
       setTimeout(() => {
@@ -186,6 +191,11 @@ export const useBattle = create<BattleState>()(
     setSelectedItem: (item) => set({ selectedItem: item }),
     
     executeAttack: (actorId, actorType, targetId) => {
+      // Any non-flee action cancels a pending "all heroes flee" attempt.
+      if (actorType === 'hero') {
+        set({ fleeReadyHeroIds: [] });
+      }
+
       const { heroes, enemies } = get();
       
       let attacker: Hero | Enemy | undefined;
@@ -246,6 +256,11 @@ export const useBattle = create<BattleState>()(
     },
     
     executeSkill: (actorId, actorType, skill, targetIds) => {
+      // Any non-flee action cancels a pending "all heroes flee" attempt.
+      if (actorType === 'hero') {
+        set({ fleeReadyHeroIds: [] });
+      }
+
       const { heroes, enemies } = get();
       
       let caster: Hero | Enemy | undefined;
@@ -348,6 +363,9 @@ export const useBattle = create<BattleState>()(
     },
     
     useItem: (item, targetId) => {
+      // Any non-flee action cancels a pending "all heroes flee" attempt.
+      set({ fleeReadyHeroIds: [] });
+
       const { heroes, items } = get();
       
       const itemInInventory = items.find(i => i.id === item.id);
@@ -425,7 +443,7 @@ export const useBattle = create<BattleState>()(
         return true;
       } else {
         get().addMessage('Couldn\'t escape!');
-        set({ fleeAttempts: fleeAttempts + 1, phase: 'executing' });
+        set({ fleeAttempts: fleeAttempts + 1, phase: 'executing', fleeReadyHeroIds: [] });
         setTimeout(() => {
           set({ currentTurnIndex: get().currentTurnIndex + 1 });
           get().nextTurn();
@@ -433,8 +451,48 @@ export const useBattle = create<BattleState>()(
         return false;
       }
     },
+
+    chooseFlee: (heroId) => {
+      const { heroes, fleeReadyHeroIds } = get();
+      const hero = heroes.find(h => h.id === heroId);
+      if (!hero || !hero.isAlive) return;
+
+      // Mark this hero as "ready to flee"
+      const nextReady = fleeReadyHeroIds.includes(heroId)
+        ? fleeReadyHeroIds
+        : [...fleeReadyHeroIds, heroId];
+
+      set({
+        selectedCommand: 'flee',
+        selectedSkill: null,
+        selectedItem: null,
+        fleeReadyHeroIds: nextReady,
+        phase: 'executing'
+      });
+
+      get().addMessage(`${hero.name} prepares to flee...`);
+
+      const aliveHeroIds = heroes.filter(h => h.isAlive).map(h => h.id);
+      const allReady = aliveHeroIds.every(id => nextReady.includes(id));
+
+      // End this hero's turn. Only attempt to flee once all alive heroes have chosen flee.
+      if (allReady) {
+        setTimeout(() => {
+          get().addMessage('The party attempts to flee!');
+          get().attemptFlee();
+        }, 500);
+      } else {
+        setTimeout(() => {
+          set({ currentTurnIndex: get().currentTurnIndex + 1 });
+          get().nextTurn();
+        }, 800);
+      }
+    },
     
     enemyTakeTurn: () => {
+      // Enemy actions break any coordinated flee attempt.
+      set({ fleeReadyHeroIds: [] });
+
       const { turnOrder, currentTurnIndex, enemies, heroes } = get();
       const currentActor = turnOrder[currentTurnIndex];
       
