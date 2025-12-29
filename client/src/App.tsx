@@ -8,7 +8,7 @@ import {
   FleeScreen,
   StartScreen
 } from "./components/battle";
-import { BottomUI } from "./components/battle/BattleMenu";
+import { BattleSummaryOverlay, BottomUI } from "./components/battle/BattleMenu";
 import { useBattle } from "./lib/stores/useBattle";
 
 function App() {
@@ -47,6 +47,8 @@ function App() {
               <BattleScene />
             </Suspense>
           </Canvas>
+
+          <BattleSummaryOverlay />
         </div>
 
         <BottomUI />
